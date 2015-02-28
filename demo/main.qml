@@ -16,8 +16,17 @@ ApplicationWindow {
 
     property string selectedComponent: components[0]
 
+    property bool smallScreen: demo.width <= units.dp(500);
+
     initialPage: Page {
         title: "Component Demo"
+
+        backAction: Action {
+            name: "Menu"
+            iconName: "navigation/menu"
+            onTriggered: sidebar.expanded = !sidebar.expanded
+            visible: smallScreen
+        }
 
         actions: [
             Action {
@@ -50,6 +59,23 @@ ApplicationWindow {
         Sidebar {
             id: sidebar
 
+            states: [
+                State {
+                    name: "pinned"
+                    PropertyChanges { target: sidebar; expanded: true; }
+                    ParentChange { target: sidebar; parent: flickable.parent; }
+                    PropertyChanges { target: flickable; anchors.left: sidebar.right; }
+                },
+                State {
+                    name: "temporary"
+                    PropertyChanges { target: sidebar; expanded: false; }
+                    ParentChange { target: sidebar; parent: demo.contentItem; }
+                    PropertyChanges { target: flickable; anchors.left: flickable.parent.left; }
+                }
+            ]
+
+            state: smallScreen ? "temporary" : "pinned";
+
             Column {
                 width: parent.width
 
@@ -63,13 +89,15 @@ ApplicationWindow {
                 }
             }
         }
+
         Flickable {
             id: flickable
+
             anchors {
-                left: sidebar.right
-                right: parent.right
                 top: parent.top
                 bottom: parent.bottom
+                right: parent.right
+                left: parent.left
             }
             clip: true
             contentHeight: Math.max(example.implicitHeight, height)
@@ -78,7 +106,15 @@ ApplicationWindow {
                 anchors.fill: parent
                 // selectedComponent will always be valid, as it defaults to the first component
                 source: Qt.resolvedUrl("%1Demo.qml").arg(selectedComponent.replace(" ", ""))
+                onLoaded: if (smallScreen) sidebar.expanded = false
             }
+
+            MouseArea {
+               id: mouseArea
+               enabled: smallScreen && sidebar.expanded == true
+               anchors.fill: parent
+               onClicked: if (smallScreen) sidebar.expanded = false
+           }
         }
         Scrollbar {
             flickableItem: flickable
