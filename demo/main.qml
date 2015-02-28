@@ -10,7 +10,7 @@ ApplicationWindow {
     }
 
     property var components: [
-            "Button", "Checkbox", "Dialog", "Forms", "Icon", "List Items", "Page Stack",
+            "Button", "CheckBox", "Dialog", "Forms", "Icon", "List Items", "Page Stack",
             "Progress Bar", "Radio Button", "Slider", "Switch", "TextField"
     ]
 
